@@ -1,82 +1,118 @@
-const ellist = selectelem(".list")
-const eltemplate = selectelem(".template").content
-const elform = selectelem(".form")
-const elforminput = selectelem(".form_input", elform)
+const hamburger = document.querySelector(".burger")
+const elTemplate = document.querySelector(".template").content
+const elList = document.querySelector(".card_wrapper")
+const elmodal = document.querySelector(".modal")
+const closeBtn = elmodal.querySelector(".close_btn")
+const recs = document.querySelector(".recs")
+const menu = document.querySelector(".menu1")
 
-let todosArr = JSON.parse(window.localStorage.getItem("todos")) || []
-const checktodo = (e) =>{
-    let dataid = e.target.dataset.id
-    let faundcheck = todosArr.find(item => item.id == dataid)
-    faundcheck.isCompleted = !faundcheck.isCompleted
-    renderTodos(todosArr, ellist)
-
-window.localStorage.setItem("todos", JSON.stringify(todosArr))
-}
-
-const edittodo = (e) =>{
-    let dataid = e.target.dataset.id
-    let foundedit = todosArr.find(item => item.id == dataid)
-    foundedit.content = prompt("yangi xabarni kiriting")
-    renderTodos(todosArr, ellist)
-
-window.localStorage.setItem("todos", JSON.stringify(todosArr))
-}
-
-const delateTodo = (e) =>{
-    let dataid = e.target.dataset.id
-    let foundindex = todosArr.findIndex(item => item.id == dataid)
-    todosArr.splice(foundindex, 1)
-    renderTodos(todosArr, ellist) 
-
-    window.localStorage.setItem("todos", JSON.stringify(todosArr))
-}
-
-function renderTodos(arr, list){
-    ellist.innerHTML = null
-    arr.map(item => {
-        let cloneTemplate = eltemplate.cloneNode(true)
-        let listitemcontent = selectelem(".list_item-content", cloneTemplate)
-        let listitemdelate = selectelem(".list_item-btn", cloneTemplate)
-        let listitemedit = selectelem(".list_item-edit", cloneTemplate)
-        let todocheck = selectelem(".list_item-input", cloneTemplate)
-
-        if(item.isCompleted == true){
-            listitemcontent.style = "text-decoration: line-through; opacity: 0.5; font-size: 15px"
-            todocheck.checked = true
-        }
-
-        listitemcontent.textContent = item.content
-        listitemdelate.dataset.id = item.id
-        listitemedit.dataset.id = item.id
-        todocheck.dataset.id = item.id
-
-        listitemedit.addEventListener("click", edittodo)
-        listitemdelate.addEventListener("click", delateTodo)
-        todocheck.addEventListener("change", checktodo)
-
-        ellist.appendChild(cloneTemplate)
-    })
-    
-}
-
-renderTodos(todosArr, ellist)
-
-elform.addEventListener("submit", (e) =>{
-    e.preventDefault()
-    let inputvalue = elforminput.value.trim()
-
-    todosArr.push({
-        id: todosArr.length,
-        content: inputvalue,
-        isCompleted: false
-    })
-
-renderTodos(todosArr)
-
-window.localStorage.setItem("todos", JSON.stringify(todosArr))
-
-windov.locolstore
-    
-    elforminput.value.null
-    elforminput.focus()
+window.addEventListener("click", e => {
+    if (elmodal == e.target) {
+        elmodal.classList.remove("active")
+    }
 })
+
+closeBtn.addEventListener("click", () => {
+    elmodal.classList.remove("active")
+})
+
+let mode = true
+hamburger.addEventListener("click", () => {
+    if (mode == true) {
+        menu.classList.add("active")
+    } else {
+        menu.classList.remove("active")
+    }
+    mode = !mode
+});
+
+
+function Arrrender(arr, list) {
+    arr.filter(item => item.id >= 5 && item.id <= 7).map((item) => {
+        console.log(item);
+        let Templateclone = elTemplate.cloneNode(true)
+
+        let cardImg = Templateclone.querySelector("img")
+        let cardTitle = Templateclone.querySelector("h3")
+        let cardPrice = Templateclone.querySelector("p")
+
+        cardImg.src = item.image
+        cardTitle.textContent = item.title
+        cardPrice.textContent = item.price + "$"
+        let ModalImg = elmodal.querySelector("img")
+        let Modaltitle = elmodal.querySelector("h3")
+        let Modaldescription = elmodal.querySelector("p")
+        let ModalPrice = elmodal.querySelector("h4")
+
+        
+        let cardBtn = Templateclone.querySelector("button")
+        cardBtn.dataset.Id = item.id
+
+        cardBtn.addEventListener("click", e => {
+            let dataId = e.target.dataset.Id
+            elmodal.classList.add("active")
+
+            if (dataId == item.id) {
+                ModalImg.src = item.image
+                Modaltitle.textContent = item.title
+                Modaldescription.textContent = item.description
+                ModalPrice.textContent = item.price
+            }
+        })
+
+
+        list.appendChild(Templateclone)
+    })
+}
+
+
+function renderArr(arr, list) {
+    arr?.map(item => {
+        let cloneTemplate = elTemplate.cloneNode(true)
+
+        let cardImg = cloneTemplate.querySelector("img")
+        let cardTitle = cloneTemplate.querySelector("h3")
+        let cardPrice = cloneTemplate.querySelector("p")
+        let ModalImg = elmodal.querySelector("img")
+        let Modaltitle = elmodal.querySelector("h3")
+        let Modaldescription = elmodal.querySelector("p")
+        let ModalPrice = elmodal.querySelector("h4")
+
+        let cardBtn = cloneTemplate.querySelector("button")
+        cardBtn.dataset.Id = item.id
+
+        cardBtn.addEventListener("click", e => {
+            let dataId = e.target.dataset.Id
+            elmodal.classList.add("active")
+
+            if (dataId == item.id) {
+                ModalImg.src = item.image
+                Modaltitle.textContent = item.title
+                Modaldescription.textContent = item.description
+                ModalPrice.textContent = item.price
+            }
+        })
+
+        cardImg.src = item.image
+        cardTitle.textContent = item.title
+        cardPrice.textContent = item.price + "$"
+
+        list.appendChild(cloneTemplate)
+    })
+}
+
+function fetchData() {
+    fetch("https://fakestoreapi.com/products")
+        .then(res => res.json())
+        .then(data => {
+            renderArr(data, elList)
+            Arrrender(data, recs)
+        })
+}
+
+fetchData()
+
+
+function Buy() {
+    window.open("./buy.html")
+}
